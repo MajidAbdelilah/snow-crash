@@ -18,3 +18,6 @@ for c in str_1:
 	else:
 		decoded.append(c)
 print(''.join(decoded))
+
+print((-3 + 26) % 26)
+print(3 % 26)

@@ -1,0 +1,31 @@
+What This Perl Script Does
+This is a CGI web script running on localhost:4747. Let's break it down piece by piece.
+
+Line by Line
+use CGI qw{param};
+Imports the CGI module, specifically the param() function, which reads HTTP request parameters (from GET or POST).
+print "Content-type: text/html\n\n";
+Sends the HTTP response header telling the browser the response is HTML. Required for any CGI script.
+sub x { ... }
+Defines a function called x that:
+
+Takes its first argument via $_[0] and stores it in $y
+Executes echo $y in a shell using backticks ` ` and prints the result
+2>&1 redirects stderr to stdout (so errors are also printed)
+
+x(param("x"));
+Calls function x with the value of the HTTP parameter named x.
+
+The Big Picture
+When you send a request like:
+http://localhost:4747/level04.pl?x=hello
+The script runs echo hello in a shell and returns the output.
+
+🚨 The Critical Vulnerability: Command Injection
+The value from param("x") is passed directly and unsanitized into a shell command via backticks. This means you can inject arbitrary shell commands.
+Example exploit:
+http://localhost:4747/level04.pl?x=`id`
+The shell expands `id` and runs it, returning something like uid=1001(flag04)...
+Or more directly:
+http://localhost:4747/level04.pl?x=$(cat /etc/passwd)
+This is a classic OS Command Injection vulnerability — user input flows directly into shell execution with no sanitization whatsoever. In the context of SnowCrash (a security wargame), this is exactly the hole you're meant to exploit to grab the flag for level 4.
